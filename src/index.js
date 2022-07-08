@@ -113,6 +113,8 @@ function jumpToFloor(floorToReach) {
   let lift;
   let liftIndex;
   for (let x of state.lifts) {
+    if (pubsub.que.find((event) => event.floorToReach === floorToReach))
+      continue;
     if (!pubsub.que.find((event) => event.id === x.id)) {
       lift = x;
       liftIndex = state.lifts.indexOf(x);
