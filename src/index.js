@@ -66,6 +66,7 @@ addLiftBtn.addEventListener("click", () => {
 
 function updateDomWithState() {
   mainHolder.innerHTML = "";
+  state.lifts = state.lifts.map((lift) => ({ ...lift, currentFloor: 1 }));
 
   for (let index = state.floors; index > 0; index--) {
     const floor = document.createElement("div");
