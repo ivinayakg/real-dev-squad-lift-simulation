@@ -131,22 +131,21 @@ function jumpToFloor(floorToReach) {
 function handleEvent(event) {
   const floorsToTravel = Math.abs(event.floorToReach - 1);
   let liftToTravel = document.querySelector(`.lift-${event.id}`);
+  const floorDiff = Math.abs(event.floorToReach - event.currentFloor);
 
   liftToTravel.style.transform = `translateY(${floorsToTravel * 120 * -1}px)`;
-  liftToTravel.style.transition = `transform ${
-    2000 * Math.abs(event.floorToReach - event.currentFloor)
-  }ms ease-in-out`;
+  liftToTravel.style.transition = `transform ${2000 * floorDiff}ms ease-in-out`;
   updateLiftFloor(event.id, event.floorToReach);
 
   setTimeout(() => {
     liftToTravel.classList.toggle("lift--active");
-  }, 2000 * floorsToTravel);
+  }, 2000 * floorDiff);
   setTimeout(() => {
     liftToTravel.classList.toggle("lift--active");
-  }, 2000 * floorsToTravel + 2500);
+  }, 2000 * floorDiff + 2500);
   setTimeout(() => {
     pubsub.popFromQue(event.id);
-  }, 2000 * floorsToTravel + 5000);
+  }, 2000 * floorDiff + 5000);
 }
 
 updateLifts();
