@@ -32,13 +32,20 @@ const state = {
   lifts: [{ id: generateId(), currentFloor: 1 }],
   floors: 1,
 };
+const newState = {
+  lifts: [],
+  floors: 0,
+}
+
+let workQueue = []
 
 // dom elemets are present here
 const mainHolder = document.querySelector(".main");
 const liftsStatus = document.querySelector(".status_lifts");
 const floorsStatus = document.querySelector(".status_floors");
-const addLiftBtn = document.querySelector(".header_addLift");
-const addFloorBtn = document.querySelector(".header_addFloor");
+const updateButton = document.querySelector(".header_add>button");
+const addLiftInput = document.querySelector(".lift_input");
+const addFloorInput = document.querySelector(".floor_input");
 
 const updateLifts = () => {
   liftsStatus.innerText = "Lifts :- " + state.lifts.length;
@@ -53,22 +60,46 @@ const updateLiftFloor = (liftID, newFloor) =>
   ].currentFloor = newFloor);
 
 //add lift or floor events
-addFloorBtn.addEventListener("click", () => {
-  state.floors += 1;
-  updateFloors();
-  updateDomWithState();
-});
-addLiftBtn.addEventListener("click", () => {
-  state.lifts.push({ id: generateId(), currentFloor: 1 });
+updateButton.addEventListener("click", () => {
+  newState.floors = Number(addFloorInput.value);
+  newState.lifts.length = 0;
+  for (let x of [...new Array(Number(addLiftInput.value))]) {
+    newState.lifts.push({ id: generateId(), currentFloor: 1 });
+  }
   updateLifts();
-  updateDomWithState();
+  updateFloors();
+  createWorkQueue();
+  requestIdleCallback(updateDomWithState)
 });
 
-function updateDomWithState() {
+function createWorkQueue(){
   mainHolder.innerHTML = "";
-  state.lifts = state.lifts.map((lift) => ({ ...lift, currentFloor: 1 }));
+  let liftWrapper = document.createElement("div");
+  liftWrapper.classList.add("lift_wrapper");
+  
+  for(let x in [...new Array(newState.floors)]){
+    workQueue.push(() => createFloor(mainHolder, x))
+  }
+  workQueue.push(() => mainHolder.append(liftWrapper))
+  newState.lifts.forEach(lift => {
+    workQueue.push(() => createLift(liftWrapper, lift))
+  })
+}
 
-  for (let index = state.floors; index > 0; index--) {
+function updateDomWithState(deadline) {
+  let shouldCancel = false;
+  let currentTask = 0;
+  while(!shouldCancel && workQueue.length !== currentTask){
+    workQueue[currentTask]()
+    currentTask++;
+    shouldCancel = deadline.timeRemaining() < 1;
+  }
+  if(workQueue.length !== currentTask){
+    requestIdleCallback(updateDomWithState)
+  }
+}
+
+function createFloor(mainHolder, index){
     const floor = document.createElement("div");
     floor.classList.add("floor");
     if (index === state.floors) floor.classList.add("floor_first");
@@ -91,12 +122,10 @@ function updateDomWithState() {
     floor.append(buttonWrapper);
 
     mainHolder.append(floor);
-  }
-  let liftWrapper = document.createElement("div");
-  liftWrapper.classList.add("lift_wrapper");
+}
 
-  state.lifts.forEach((lift, index) => {
-    let liftNode = document.createElement("span");
+function createLift(liftWrapper,lift){
+  let liftNode = document.createElement("span");
     let rightDoor = document.createElement("span");
     let leftDoor = document.createElement("span");
     rightDoor.classList.add("lift_rightD");
@@ -106,8 +135,6 @@ function updateDomWithState() {
     liftNode.classList.add("lift");
     liftNode.classList.add(`lift-${lift.id}`);
     liftWrapper.append(liftNode);
-  });
-  mainHolder.append(liftWrapper);
 }
 
 function jumpToFloor(floorToReach) {
@@ -147,7 +174,4 @@ function handleEvent(event) {
     pubsub.popFromQue(event.id);
   }, 2000 * floorDiff + 5000);
 }
-
-updateLifts();
-updateFloors();
-updateDomWithState();
+console.log(newState)

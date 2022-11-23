@@ -133,3 +133,14 @@ button {
 .lift--active .lift_rightD {
   width: 0px;
 }
+
+.header_add{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.header_add > *{
+  height: 35px;
+}
