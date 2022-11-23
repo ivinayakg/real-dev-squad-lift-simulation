@@ -92,7 +92,7 @@ function updateDomWithState(deadline) {
   while(!shouldCancel && workQueue.length !== currentTask){
     workQueue[currentTask]()
     currentTask++;
-    shouldCancel = deadline.timeRemaining() < 1;
+    shouldCancel = deadline.timeRemaining() < 1.5;
   }
   if(workQueue.length !== currentTask){
     requestIdleCallback(updateDomWithState)
