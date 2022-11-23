@@ -73,6 +73,7 @@ updateButton.addEventListener("click", () => {
 });
 
 function createWorkQueue(){
+  workQueue.length = 0;
   mainHolder.innerHTML = "";
   let liftWrapper = document.createElement("div");
   liftWrapper.classList.add("lift_wrapper");
@@ -96,6 +97,8 @@ function updateDomWithState(deadline) {
   }
   if(workQueue.length !== currentTask){
     requestIdleCallback(updateDomWithState)
+  }else{
+    state = {...newState}
   }
 }
 
